@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://43.136.23.194:1314';
+const API_BASE_URL = 'http://43.136.23.194:8080';
 const rememberMeCheckbox = document.getElementById('rememberMe');
 const accountInput = document.getElementById('account');
 const passwordInput = document.getElementById('password');
@@ -96,7 +96,7 @@ function initLogin() {
                     localStorage.setItem('authToken', data.token);
                 }
                 // 跳转到主页
-                window.location.href = 'home.html';
+                window.location.href = "/home";
             })
             .catch(error => {
                 // 登录失败处理
