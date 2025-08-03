@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>爱的小站 - 登录</title>
+    <link rel="stylesheet" href="login.css">
+</head>
+<body class="login-body">
+    <div class="container login-container">
+        <header class="login-header">
+            <h1>爱的小站</h1>
+            <p>欢迎回来哟，请登录~</p>
+        </header>
+
+        <main class="login-main">
+            <form class="login-form">
+                <div class="form-group">
+                    <label for="account">账号</label>
+                    <input type="text" id="account" placeholder="请输入账号" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">密码</label>
+                    <input type="password" id="password" placeholder="请输入密码" required>
+                </div>
+                <div class="form-options">
+                    <label>
+                        <input type="checkbox" id="rememberMe"> 记住我
+                    </label>
+                    <a href="#">竟然忘记密码?</a>
+                </div>
+                <button type="submit" class="login-btn">登录</button>
+            </form>
+            <div class="register-link">
+                <p>还没有账号? <a href="#">立即注册不了</a></p>
+            </div>
+        </main>
+    </div>
+
+    <script src="login.js"></script>
+</body>
+</html>
