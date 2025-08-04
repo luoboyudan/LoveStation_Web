@@ -69,6 +69,26 @@ main {
     border-bottom: 1px solid #f0e4d7;
 }
 
+.chat-message {
+    margin-bottom: 10px;
+    max-width: 70%;
+    padding: 10px 15px;
+    border-radius: 20px;
+    position: relative;
+    font-size: 14px;
+    font-weight: 500;    
+}
+
+.chat-message.own {
+    background-color: #f7b6b8;
+    margin-left: auto;
+}
+
+.chat-message.other {
+    background-color: white;
+    margin-right: auto;
+}
+
 .chat-input {
     display: flex;
     padding: 1rem;

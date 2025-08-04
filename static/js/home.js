@@ -10,7 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const messageInput = document.getElementById('messageInput');
     const sendBtn = document.getElementById('sendBtn');
     const chatMessages = document.getElementById('chatMessages');
-
+    
+    const API_BASE_URL = 'http://43.136.23.194:8080';
     // 切换显示的页面
     function showSection(section) {
         homeSection.style.display = 'none';
@@ -40,13 +41,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     chatBtn.addEventListener('click', () => {
         showSection(chatSection);
+        fetchMessages();
     });
 
     // 聊天功能基础实现
     sendBtn.addEventListener('click', () => {
         const message = messageInput.value.trim();
         if (message) {
-            appendMessage('你: ' + message);
+            appendMessage(message, true);
             messageInput.value = '';
         }
     });
@@ -57,10 +59,30 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    function appendMessage(message) {
-        const messageElement = document.createElement('p');
+    function appendMessage(message,isOwn) {
+        const messageElement = document.createElement('div');
+        messageElement.className ='chat-message '+(isOwn?"own":"other");
         messageElement.textContent = message;
         chatMessages.appendChild(messageElement);
         chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // 从API获取消息列表
+    async function fetchMessages() {
+        try {
+            const response = await fetch(API_BASE_URL+'/api/messages/get');
+            if(!response.ok) {
+                throw new Error('获取消息失败');
+            }
+            const responseData = await response.json();
+            const messages = responseData.data;
+            // 清空现有消息
+            chatMessages.innerHTML = '';
+            messages.forEach(message => {
+                appendMessage(message.content,message.isOwn);
+            });
+        } catch (error) {
+            console.error('获取消息失败:', error);
+        }
     }
 });
