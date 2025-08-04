@@ -101,10 +101,13 @@ document.addEventListener('DOMContentLoaded', () => {
             // 清空现有消息
             chatMessages.innerHTML = '';
             messages.forEach(message => {
-                appendMessage(message.content,message.isOwn);
+                appendMessage(message.content,message.is_own);
             });
         } catch (error) {
             console.error('获取消息失败:', error);
         }
     }
+    // 轮询获取消息
+    const pollInterval = 3000; // 3000毫秒 = 3秒
+    setInterval(fetchMessages, pollInterval);
 });
