@@ -19,7 +19,33 @@
     <main>
         <div id="homeSection" class="section">
             <h2>我的主页</h2>
-            <p>这里是你的主页内容。</p>
+
+            <!-- 个人信息框 -->
+            <div class="profile-info">
+                <span id="username">username</span>
+                <span id="signature">signature</span>
+                <button id="editProfileBtn">编辑</button>
+            </div>
+
+            <!-- 说说 在这里实现两个界面的切换（隐藏与显示）-->
+            <div class="says" id="postSaysSection">
+                <h3>发布说说</h3>
+                <textarea id="saysInput" placeholder="写点什么吧"></textarea>
+                <div class="says-buttons-container">
+                    <button id="postSaysBtn">发布</button>
+                    <button id="viewSaysBtn">查看说说</button>
+                </div>
+            </div>
+            <!-- 添加查看说说的界面 -->
+            <div id="viewSaysSection" class="section" style="display: none;">
+                <h3>查看说说</h3>
+                <div id="saysContainer">
+                    <ul id="saysList">
+                        <!-- 说说将通过 JS 动态生成 -->
+                    </ul>
+                </div>
+                <button id="backToPostBtn">返回发布</button>
+            </div>
         </div>
         
         <div id="userProfileSection" class="section" style="display: none;">

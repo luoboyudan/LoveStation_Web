@@ -11,7 +11,6 @@ body {
 
 header {
     background-color: #ff9a9e;
-    background-image: linear-gradient(90deg, #ff9a9e 0%, #fad0c4 100%);
     color: white;
     padding: 1rem;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -110,7 +109,6 @@ main {
 .chat-input button {
     padding: 0.8rem 1.5rem;
     background-color: #ff9a9e;
-    background-image: linear-gradient(90deg, #ff9a9e 0%, #fad0c4 100%);
     color: white;
     border: none;
     border-radius: 20px;
@@ -120,4 +118,162 @@ main {
 
 .chat-input button:hover {
     opacity: 0.9;
+}
+
+.profile-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 0.8rem;
+    padding: 1.0rem;
+    background-color: #fef9f3;
+    border-radius: 12px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.profile-info #username {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #5a4a42;
+    margin-bottom: 0.5rem;
+}
+
+.profile-info #signature {
+    font-size: 1rem;
+    color: #8a7a72;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.profile-info #editProfileBtn {
+    padding: 0.4rem 1.0rem;
+    background-color: #ff9a9e;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+}
+
+.profile-info #editProfileBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 3px 8px rgba(255, 154, 158, 0.5);
+}
+
+.profile-info #editProfileBtn:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(255, 154, 158, 0.5);
+}
+
+/* 合并重复的样式 */
+/* 合并发布说说和查看说说界面的公共样式 */
+#postSaysSection, #viewSaysSection { 
+    margin-top: 1.5rem; 
+    padding: 1.5rem; 
+    background-color: #fef9f3; 
+    border-radius: 12px; 
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
+} 
+
+.says h3 { 
+    margin-top: 0; 
+    color: #5a4a42; 
+} 
+
+.says #saysInput { 
+    width: 100%; 
+    height: 100px; 
+    padding: 0.8rem; 
+    margin-bottom: 0.8rem; 
+    border: 1px solid #f0e4d7; 
+    border-radius: 8px; 
+    background-color: white; 
+    resize: none; 
+    box-sizing: border-box; 
+} 
+
+/* 添加按钮容器样式 */
+.says .says-buttons-container { 
+    display: flex; 
+    justify-content: space-between; 
+} 
+
+/* 合并按钮基础样式 */
+.says #postSaysBtn, .says #viewSaysBtn{ 
+    padding: 0.5rem 1.2rem; 
+    background-color: #ff9a9e; 
+    color: white; 
+    border: none; 
+    border-radius: 20px; 
+    cursor: pointer; 
+    box-shadow: 0 2px 5px rgba(255, 154, 158, 0.5); 
+} 
+
+/* 合并按钮交互样式 */
+.says #postSaysBtn:hover, .says #viewSaysBtn:hover, #backToPostBtn:hover { 
+    transform: translateY(-2px); 
+    box-shadow: 0 3px 8px rgba(255, 154, 158, 0.5); 
+} 
+
+.says #postSaysBtn:active, .says #viewSaysBtn:active, #backToPostBtn:active { 
+    transform: translateY(0); 
+    box-shadow: 0 1px 3px rgba(255, 154, 158, 0.5); 
+} 
+
+/* 说说容器样式，仅保留在查看说说界面需要的样式 */
+#saysContainer { 
+    height: 200px; 
+    overflow-y: auto; 
+    padding-right: 10px; 
+    background-color: #ffffff; 
+    border-radius: 8px; 
+} 
+
+/* 自定义滚动条样式 */
+#saysContainer::-webkit-scrollbar { 
+    width: 8px; 
+} 
+
+#saysContainer::-webkit-scrollbar-thumb { 
+    background-color: #ff9a9e; 
+    border-radius: 4px; 
+} 
+
+#saysContainer::-webkit-scrollbar-track { 
+    background-color: #f0e4d7; 
+} 
+
+#saysList li { 
+    font-size: small; 
+    margin-bottom: 0.8rem; 
+} 
+
+.say-time { 
+    display: block; 
+    margin-bottom: 0.5rem; 
+    font-style: italic; 
+} 
+
+.say-text { 
+    white-space: pre-wrap; 
+    word-wrap: break-word; 
+}
+
+/* 添加查看说说h3元素样式 */
+#viewSaysSection h3 {
+    width: auto; /* 自动宽度 */
+    max-width: 80%; /* 最大宽度为容器的 80% */
+    margin-top: 0;
+    word-wrap: break-word; /* 长单词换行 */
+}
+#backToPostBtn {
+    padding: 0.5rem 1.2rem; 
+    margin-top: 1rem;
+    background-color: #ff9a9e; 
+    color: white; 
+    border: none; 
+    border-radius: 20px; 
+    cursor: pointer; 
+    box-shadow: 0 2px 5px rgba(255, 154, 158, 0.5); 
 }

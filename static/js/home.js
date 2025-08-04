@@ -1,7 +1,21 @@
 const authToken = localStorage.getItem('authToken');
 const API_BASE_URL = 'http://43.136.23.194:8080';
-const WS_BASE_URL = 'ws://43.136.23.194:8080';
-let ws;
+function connectWebSocket() {
+    const ws = new WebSocket(API_BASE_URL+'/ws/messages?token='+authToken);
+    ws.onopen = () => {
+        console.log('连接成功');
+    };
+    ws.onmessage = (event) => {
+        const message = JSON.parse(event.data);
+        appendMessage(message.content, false);
+    };
+    ws.onerror = (event) => {
+        console.error('连接错误:', event);
+    };
+    ws.onclose = (event) => {
+        console.log('连接关闭:', event);
+    };
+}
 document.addEventListener('DOMContentLoaded', () => {
     const homeBtn = document.getElementById('homeBtn');
     const userProfileBtn = document.getElementById('userProfileBtn');
@@ -15,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const sendBtn = document.getElementById('sendBtn');
     const chatMessages = document.getElementById('chatMessages');
     
+    const API_BASE_URL = 'http://43.136.23.194:8080';
     // 切换显示的页面
     function showSection(section) {
         homeSection.style.display = 'none';
@@ -36,16 +51,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     homeBtn.addEventListener('click', () => {
         showSection(homeSection);
-        if (ws.readyState === WebSocket.OPEN) {
-            closeWebSocket();
-        }
     });
 
     userProfileBtn.addEventListener('click', () => {
         showSection(userProfileSection);
-        if (ws.readyState === WebSocket.OPEN) {
-            closeWebSocket();
-        }
     });
 
     chatBtn.addEventListener('click', () => {
@@ -56,10 +65,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 聊天功能基础实现
     sendBtn.addEventListener('click', async () => {
-        if (ws.readyState !== WebSocket.OPEN) {
-            alert('稍等一下,还没准备好呢o(>_<)o');
-            return;
-        }
         const message = messageInput.value.trim();
         if (message) {
             try {
@@ -120,33 +125,54 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('获取消息失败:', error);
         }
     }
-    function connectWebSocket() {
-        // 关闭之前的连接
-        if (ws && ws.readyState === WebSocket.OPEN) {
-            ws.close();
-        }
-        ws = new WebSocket(WS_BASE_URL+'/ws/messages?token='+authToken);
-        ws.onopen = () => {
-            console.log('连接成功');
-        };
-        ws.onmessage = (event) => {
-            const message = JSON.parse(event.data);
-            appendMessage(message.content, false);
-        };
-        ws.onerror = (event) => {
-            console.error('连接错误:', event);
-        };
-        ws.onclose = (event) => {
-            console.log('连接关闭:', event);
-        };
+    
+    // 获取元素
+    const postSaysSection = document.getElementById('postSaysSection');
+    const viewSaysSection = document.getElementById('viewSaysSection');
+    const viewSaysBtn = document.getElementById('viewSaysBtn');
+    const backToPostBtn = document.getElementById('backToPostBtn');
+    const saysList = document.getElementById('saysList');
+    
+    // 切换到查看说说界面
+    viewSaysBtn.addEventListener('click', () => {
+        postSaysSection.style.display = 'none';
+        viewSaysSection.style.display = 'block';
+        // 这里可添加获取说说列表的逻辑，当前模拟数据
+        mockFetchSays();
+    });
+    
+    // 切换回发布说说界面
+    backToPostBtn.addEventListener('click', () => {
+        viewSaysSection.style.display = 'none';
+        postSaysSection.style.display = 'block';
+    });
+    
+    // 模拟获取说说列表的函数
+    function mockFetchSays() {
+        // 清空现有列表
+        saysList.innerHTML = '';
+        
+        // 模拟数据
+        const mockData = [
+            { id: 1, content: '这是第一条说说内容', time: '2024-07-20' },
+            { id: 2, content: '这是第二条说说内容', time: '2024-07-21' }
+        ];
+        
+        mockData.forEach(item => {
+            const li = document.createElement('li');
+            li.textContent = `${item.content} - ${item.time}`;
+            saysList.appendChild(li);
+        });
     }
-    function closeWebSocket() {
-        if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
-            ws.close(1000, '客户端主动关闭'); // 显式指定正常关闭状态码
+    
+    // 发布说说逻辑（可按需对接后端接口）
+    document.getElementById('postSaysBtn').addEventListener('click', () => {
+        const saysInput = document.getElementById('saysInput');
+        const content = saysInput.value.trim();
+        if (content) {
+            // 这里可添加发布说说的逻辑，如调用 API
+            alert('发布成功！');
+            saysInput.value = '';
         }
-    }
-    // 关闭WebSocket连接
-    window.addEventListener('beforeunload', () => {
-        closeWebSocket();
     });
 });
