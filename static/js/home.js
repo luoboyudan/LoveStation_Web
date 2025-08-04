@@ -1,21 +1,7 @@
 const authToken = localStorage.getItem('authToken');
 const API_BASE_URL = 'http://43.136.23.194:8080';
-function connectWebSocket() {
-    const ws = new WebSocket(API_BASE_URL+'/ws/messages?token='+authToken);
-    ws.onopen = () => {
-        console.log('连接成功');
-    };
-    ws.onmessage = (event) => {
-        const message = JSON.parse(event.data);
-        appendMessage(message.content, false);
-    };
-    ws.onerror = (event) => {
-        console.error('连接错误:', event);
-    };
-    ws.onclose = (event) => {
-        console.log('连接关闭:', event);
-    };
-}
+const WS_BASE_URL = 'ws://43.136.23.194:8080';
+let ws;
 document.addEventListener('DOMContentLoaded', () => {
     const homeBtn = document.getElementById('homeBtn');
     const userProfileBtn = document.getElementById('userProfileBtn');
@@ -29,7 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const sendBtn = document.getElementById('sendBtn');
     const chatMessages = document.getElementById('chatMessages');
     
-    const API_BASE_URL = 'http://43.136.23.194:8080';
     // 切换显示的页面
     function showSection(section) {
         homeSection.style.display = 'none';
@@ -51,10 +36,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     homeBtn.addEventListener('click', () => {
         showSection(homeSection);
+        if (ws.readyState === WebSocket.OPEN) {
+            closeWebSocket();
+        }
     });
 
     userProfileBtn.addEventListener('click', () => {
         showSection(userProfileSection);
+        if (ws.readyState === WebSocket.OPEN) {
+            closeWebSocket();
+        }
     });
 
     chatBtn.addEventListener('click', () => {
@@ -65,6 +56,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 聊天功能基础实现
     sendBtn.addEventListener('click', async () => {
+        if (ws.readyState !== WebSocket.OPEN) {
+            alert('稍等一下,还没准备好呢o(>_<)o');
+            return;
+        }
         const message = messageInput.value.trim();
         if (message) {
             try {
@@ -125,4 +120,33 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('获取消息失败:', error);
         }
     }
+    function connectWebSocket() {
+        // 关闭之前的连接
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            ws.close();
+        }
+        ws = new WebSocket(WS_BASE_URL+'/ws/messages?token='+authToken);
+        ws.onopen = () => {
+            console.log('连接成功');
+        };
+        ws.onmessage = (event) => {
+            const message = JSON.parse(event.data);
+            appendMessage(message.content, false);
+        };
+        ws.onerror = (event) => {
+            console.error('连接错误:', event);
+        };
+        ws.onclose = (event) => {
+            console.log('连接关闭:', event);
+        };
+    }
+    function closeWebSocket() {
+        if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
+            ws.close(1000, '客户端主动关闭'); // 显式指定正常关闭状态码
+        }
+    }
+    // 关闭WebSocket连接
+    window.addEventListener('beforeunload', () => {
+        closeWebSocket();
+    });
 });
