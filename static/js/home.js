@@ -1,3 +1,4 @@
+const authToken = localStorage.getItem('authToken');
 document.addEventListener('DOMContentLoaded', () => {
     const homeBtn = document.getElementById('homeBtn');
     const userProfileBtn = document.getElementById('userProfileBtn');
@@ -45,11 +46,28 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // 聊天功能基础实现
-    sendBtn.addEventListener('click', () => {
+    sendBtn.addEventListener('click', async () => {
         const message = messageInput.value.trim();
         if (message) {
-            appendMessage(message, true);
-            messageInput.value = '';
+            try {
+                const response = await fetch(API_BASE_URL+'/api/messages/send',{
+                    method: 'POST',
+                    headers: {
+                        'token': authToken
+                    },
+                    body: JSON.stringify({
+                        content: message
+                    })
+                });
+                if(!response.ok) {
+                    throw new Error('发送消息失败');
+                }
+                appendMessage(message,true);
+                messageInput.value = '';
+            } catch (error) {
+                console.error('发送消息失败');
+                alert('消息发送失败了T_T');
+            }
         }
     });
 
@@ -70,7 +88,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // 从API获取消息列表
     async function fetchMessages() {
         try {
-            const response = await fetch(API_BASE_URL+'/api/messages/get');
+            const response = await fetch(API_BASE_URL+'/api/messages/get',{
+                headers: {
+                    'token': authToken
+                }
+            });
             if(!response.ok) {
                 throw new Error('获取消息失败');
             }
