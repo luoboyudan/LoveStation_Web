@@ -1,4 +1,21 @@
 const authToken = localStorage.getItem('authToken');
+const API_BASE_URL = 'http://43.136.23.194:8080';
+function connectWebSocket() {
+    const ws = new WebSocket(API_BASE_URL+'/ws/messages?token='+authToken);
+    ws.onopen = () => {
+        console.log('连接成功');
+    };
+    ws.onmessage = (event) => {
+        const message = JSON.parse(event.data);
+        appendMessage(message.content, false);
+    };
+    ws.onerror = (event) => {
+        console.error('连接错误:', event);
+    };
+    ws.onclose = (event) => {
+        console.log('连接关闭:', event);
+    };
+}
 document.addEventListener('DOMContentLoaded', () => {
     const homeBtn = document.getElementById('homeBtn');
     const userProfileBtn = document.getElementById('userProfileBtn');
@@ -43,6 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
     chatBtn.addEventListener('click', () => {
         showSection(chatSection);
         fetchMessages();
+        connectWebSocket();
     });
 
     // 聊天功能基础实现
@@ -107,7 +125,4 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('获取消息失败:', error);
         }
     }
-    // 轮询获取消息
-    const pollInterval = 3000; // 3000毫秒 = 3秒
-    setInterval(fetchMessages, pollInterval);
 });
