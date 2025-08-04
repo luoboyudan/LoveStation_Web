@@ -70,6 +70,9 @@ main {
 }
 
 .chat-message {
+    white-space: normal;
+    word-wrap: break-word;
+    word-break: break-all;
     margin-bottom: 10px;
     max-width: 70%;
     padding: 10px 15px;
