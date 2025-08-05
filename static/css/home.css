@@ -27,8 +27,10 @@ nav button {
     border: none;
     color: white;
     cursor: pointer;
-    font-size: 1rem;
-    padding: 0.5rem 1rem;
+    font-size: medium;
+    font-weight: bold;
+    padding: 0.2rem 1rem;
+    margin: 0;
     border-radius: 20px;
     transition: background-color 0.3s;
 }
@@ -42,7 +44,6 @@ main {
     flex: 1;
     padding: 1rem;
 }
-
 .section {
     max-width: 100%;
     margin: 0 auto;
@@ -61,7 +62,7 @@ main {
 }
 
 .chat-messages {
-    height: 40vh;
+    height: 45vh;
     overflow-y: auto;
     padding: 1rem;
     background-color: #fef9f3;
@@ -100,24 +101,21 @@ main {
 
 .chat-input input {
     flex: 1;
+    margin-top: 0;
     padding: 0.8rem;
     border: 1px solid #f0e4d7;
     border-radius: 20px;
     background-color: #fef9f3;
+    height: 1rem;
 }
 
 .chat-input button {
-    padding: 0.8rem 1.5rem;
+    padding: 0.8rem 1.2rem;
     background-color: #ff9a9e;
     color: white;
     border: none;
     border-radius: 20px;
     cursor: pointer;
-    transition: opacity 0.3s;
-}
-
-.chat-input button:hover {
-    opacity: 0.9;
 }
 
 .profile-info {
@@ -140,41 +138,37 @@ main {
 
 .profile-info #signature {
     font-size: 1rem;
+    margin-bottom: 0.2rem;
     color: #8a7a72;
-    margin-bottom: 1rem;
     text-align: center;
 }
 
 .profile-info #editProfileBtn {
-    padding: 0.4rem 1.0rem;
+    padding: 0.5rem 1.2rem;
+    margin-top: 0.5rem;
     background-color: #ff9a9e;
     color: white;
     border: none;
     border-radius: 20px;
     cursor: pointer;
-    font-size: 0.9rem;
-    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(255, 154, 158, 0.5);
 }
-
 .profile-info #editProfileBtn:hover {
-    transform: translateY(-2px);
+    transform: translateY(0);
     box-shadow: 0 3px 8px rgba(255, 154, 158, 0.5);
 }
-
 .profile-info #editProfileBtn:active {
-    transform: translateY(0);
+    transform: translateY(1px);
     box-shadow: 0 1px 3px rgba(255, 154, 158, 0.5);
 }
 
-/* 合并重复的样式 */
-/* 合并发布说说和查看说说界面的公共样式 */
-#postSaysSection, #viewSaysSection { 
+.says { 
     margin-top: 1.5rem; 
     padding: 1.5rem; 
     background-color: #fef9f3; 
     border-radius: 12px; 
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
-} 
+}
 
 .says h3 { 
     margin-top: 0; 
@@ -200,8 +194,9 @@ main {
 } 
 
 /* 合并按钮基础样式 */
-.says #postSaysBtn, .says #viewSaysBtn{ 
+.says #postSaysBtn, .says #viewSaysBtn, #backToPostBtn { 
     padding: 0.5rem 1.2rem; 
+    margin-top: 1rem;
     background-color: #ff9a9e; 
     color: white; 
     border: none; 
@@ -211,18 +206,18 @@ main {
 } 
 
 /* 合并按钮交互样式 */
-.says #postSaysBtn:hover, .says #viewSaysBtn:hover, #backToPostBtn:hover { 
-    transform: translateY(-2px); 
+.says #postSaysBtn:hover, .says #viewSaysBtn:hover, #backToPostBtn:hover, .chat-input button:hover { 
+    transform: translateY(0); 
     box-shadow: 0 3px 8px rgba(255, 154, 158, 0.5); 
 } 
 
-.says #postSaysBtn:active, .says #viewSaysBtn:active, #backToPostBtn:active { 
-    transform: translateY(0); 
+.says #postSaysBtn:active, .says #viewSaysBtn:active, #backToPostBtn:active, .chat-input button:active { 
+    transform: translateY(1px); 
     box-shadow: 0 1px 3px rgba(255, 154, 158, 0.5); 
 } 
 
 /* 说说容器样式，仅保留在查看说说界面需要的样式 */
-#saysContainer { 
+.says #saysContainer { 
     height: 200px; 
     overflow-y: auto; 
     padding-right: 10px; 
@@ -244,36 +239,80 @@ main {
     background-color: #f0e4d7; 
 } 
 
-#saysList li { 
+.says li { 
     font-size: small; 
     margin-bottom: 0.8rem; 
 } 
 
-.say-time { 
-    display: block; 
-    margin-bottom: 0.5rem; 
-    font-style: italic; 
+/* 对h2元素添加样式 */
+#chatSection h2, #homeSection h2, #userProfileSection h2 {
+    margin-top: 0;
+}
+
+
+/* 弹窗样式 */
+.modal { 
+    display: none; 
+    position: fixed; 
+    z-index: 1; 
+    left: 0; 
+    top: 0; 
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgba(0,0,0,0.4); 
 } 
 
-.say-text { 
-    white-space: pre-wrap; 
-    word-wrap: break-word; 
-}
+.modal-content { 
+    background-color: #fef9f3; 
+    margin: 15% auto; 
+    padding: 20px; 
+    border: 1px solid #888; 
+    border-radius: 20px; 
+    width: 80%; 
+    max-width: 400px; 
+} 
 
-/* 添加查看说说h3元素样式 */
-#viewSaysSection h3 {
-    width: auto; /* 自动宽度 */
-    max-width: 80%; /* 最大宽度为容器的 80% */
-    margin-top: 0;
-    word-wrap: break-word; /* 长单词换行 */
-}
-#backToPostBtn {
-    padding: 0.5rem 1.2rem; 
-    margin-top: 1rem;
+.close { 
+    color: #aaa; 
+    float: right; 
+    font-size: 28px; 
+    font-weight: bold; 
+} 
+
+.close:hover, 
+.close:focus { 
+    color: black; 
+    text-decoration: none; 
+    cursor: pointer; 
+} 
+
+.modal-content input { 
+    width: 100%; 
+    padding: 0.8rem; 
+    font-size: medium;
+    margin: 0.5rem 0; 
+    border: 1px solid #f0e4d7; 
+    border-radius: 12px; 
+    background-color: white; 
+    box-sizing: border-box; 
+} 
+
+.modal-content button { 
+    padding: 0.8rem 1.2rem; 
     background-color: #ff9a9e; 
     color: white; 
     border: none; 
     border-radius: 20px; 
     cursor: pointer; 
-    box-shadow: 0 2px 5px rgba(255, 154, 158, 0.5); 
+    margin-top: 1rem; 
+    box-shadow: 0 2px 5px rgba(255, 154, 158, 0.5);
+} 
+
+.modal-content button:hover { 
+    opacity: 0.9; 
+}
+.modal-content button:active {
+    transform: translateY(-1px);
+    box-shadow: 0 1px 3px rgba(255, 154, 158, 0.5);
 }

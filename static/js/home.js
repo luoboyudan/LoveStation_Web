@@ -1,21 +1,7 @@
 const authToken = localStorage.getItem('authToken');
 const API_BASE_URL = 'http://43.136.23.194:8080';
-function connectWebSocket() {
-    const ws = new WebSocket(API_BASE_URL+'/ws/messages?token='+authToken);
-    ws.onopen = () => {
-        console.log('连接成功');
-    };
-    ws.onmessage = (event) => {
-        const message = JSON.parse(event.data);
-        appendMessage(message.content, false);
-    };
-    ws.onerror = (event) => {
-        console.error('连接错误:', event);
-    };
-    ws.onclose = (event) => {
-        console.log('连接关闭:', event);
-    };
-}
+const WS_BASE_URL = 'ws://43.136.23.194:8080';
+let ws;
 document.addEventListener('DOMContentLoaded', () => {
     const homeBtn = document.getElementById('homeBtn');
     const userProfileBtn = document.getElementById('userProfileBtn');
@@ -29,7 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const sendBtn = document.getElementById('sendBtn');
     const chatMessages = document.getElementById('chatMessages');
     
-    const API_BASE_URL = 'http://43.136.23.194:8080';
     // 切换显示的页面
     function showSection(section) {
         homeSection.style.display = 'none';
@@ -51,10 +36,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     homeBtn.addEventListener('click', () => {
         showSection(homeSection);
+        if (ws.readyState === WebSocket.OPEN) {
+            closeWebSocket();
+        }
     });
 
     userProfileBtn.addEventListener('click', () => {
         showSection(userProfileSection);
+        if (ws.readyState === WebSocket.OPEN) {
+            closeWebSocket();
+        }
     });
 
     chatBtn.addEventListener('click', () => {
@@ -65,6 +56,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 聊天功能基础实现
     sendBtn.addEventListener('click', async () => {
+        if (ws.readyState !== WebSocket.OPEN) {
+            alert('稍等一下,还没准备好呢o(>_<)o');
+            return;
+        }
         const message = messageInput.value.trim();
         if (message) {
             try {
@@ -125,54 +120,200 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('获取消息失败:', error);
         }
     }
-    
-    // 获取元素
+    function connectWebSocket() {
+        // 关闭之前的连接
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            ws.close();
+        }
+        ws = new WebSocket(WS_BASE_URL+'/ws/messages?token='+authToken);
+        ws.onopen = () => {
+            console.log('连接成功');
+        };
+        ws.onmessage = (event) => {
+            const message = JSON.parse(event.data);
+            appendMessage(message.content, false);
+        };
+        ws.onerror = (event) => {
+            console.error('连接错误:', event);
+        };
+        ws.onclose = (event) => {
+            console.log('连接关闭:', event);
+        };
+    }
+    function closeWebSocket() {
+        if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
+            ws.close(1000, '客户端主动关闭'); // 显式指定正常关闭状态码
+        }
+    }
+    // 关闭WebSocket连接
+    window.addEventListener('beforeunload', () => {
+        closeWebSocket();
+    });
+    // 说说相关元素
+    const viewSaysBtn = document.getElementById('viewSaysBtn');
+    const postSaysBtn = document.getElementById('postSaysBtn');
     const postSaysSection = document.getElementById('postSaysSection');
     const viewSaysSection = document.getElementById('viewSaysSection');
-    const viewSaysBtn = document.getElementById('viewSaysBtn');
-    const backToPostBtn = document.getElementById('backToPostBtn');
     const saysList = document.getElementById('saysList');
+    const backToPostBtn = document.getElementById('backToPostBtn');
     
-    // 切换到查看说说界面
+    const editProfileBtn = document.getElementById('editProfileBtn');
+    const editProfileModal = document.getElementById('editProfileModal');
+    const closeModalBtn = document.querySelector('.close');
+    const saveProfileBtn = document.getElementById('saveProfileBtn');
+
+    // 切换到显示说说界面
     viewSaysBtn.addEventListener('click', () => {
         postSaysSection.style.display = 'none';
         viewSaysSection.style.display = 'block';
-        // 这里可添加获取说说列表的逻辑，当前模拟数据
-        mockFetchSays();
+        fetchSays();
     });
-    
+
     // 切换回发布说说界面
     backToPostBtn.addEventListener('click', () => {
         viewSaysSection.style.display = 'none';
         postSaysSection.style.display = 'block';
     });
-    
-    // 模拟获取说说列表的函数
-    function mockFetchSays() {
-        // 清空现有列表
-        saysList.innerHTML = '';
-        
-        // 模拟数据
-        const mockData = [
-            { id: 1, content: '这是第一条说说内容', time: '2024-07-20' },
-            { id: 2, content: '这是第二条说说内容', time: '2024-07-21' }
-        ];
-        
-        mockData.forEach(item => {
-            const li = document.createElement('li');
-            li.textContent = `${item.content} - ${item.time}`;
-            saysList.appendChild(li);
-        });
+
+    // 从API获取说说列表
+    async function fetchSays() {
+        try {
+            const response = await fetch(API_BASE_URL+'/api/says/get',{
+                method: 'GET',
+                headers: {
+                    'token': authToken
+                }
+            });
+            if(!response.ok) {
+                throw new Error('获取说说列表失败');
+            }
+            const responseData = await response.json();
+            const saysList = responseData.data;
+            // 清空现有说说
+            saysList.innerHTML = '';
+            saysList.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = `${item.content} - ${item.time}`;
+                saysList.appendChild(li);
+            });
+        } catch (error) {
+            console.error('获取说说列表失败:', error);
+        }
     }
-    
-    // 发布说说逻辑（可按需对接后端接口）
-    document.getElementById('postSaysBtn').addEventListener('click', () => {
+
+    // 发布说说逻辑
+    postSaysBtn.addEventListener('click', async () => {
         const saysInput = document.getElementById('saysInput');
         const content = saysInput.value.trim();
-        if (content) {
-            // 这里可添加发布说说的逻辑，如调用 API
-            alert('发布成功！');
-            saysInput.value = '';
+        if(content) {
+            try {
+                const response = await fetch(API_BASE_URL+'/api/says/post',{
+                    method: 'POST',
+                    headers: {
+                        'token': authToken
+                    },
+                    body: JSON.stringify({
+                        content: content
+                    })
+                });
+                if(!response.ok) {
+                    throw new Error('发布说说失败');
+                }
+                const responseData = await response.json();
+                if(responseData.code === 0) {
+                    // 发布成功
+                    saysInput.value = '';
+                    // 刷新说说列表
+                    fetchSays();
+                }
+            } catch (error) {
+                console.error('发布说说失败:', error);
+                alert('发布说说失败了T_T');
+            }
+        }
+    });
+
+    //从API获取用户信息
+    async function fetchUserInfo() {
+        try {
+            const response = await fetch(API_BASE_URL+'/api/profile/get',{
+                method: 'GET',
+                headers: {
+                    'token': authToken
+                }
+            });
+            if(!response.ok) {
+                throw new Error('获取用户信息失败');
+            }
+            const responseData = await response.json();
+            const userInfo = responseData.data;
+            // 填充当前资料到输入框
+            document.getElementById('username').textContent = userInfo.name;
+            document.getElementById('signature').textContent = userInfo.signature;
+        } catch (error) {
+            console.error('获取用户信息失败:', error);
+        }
+    }
+    // 点击编辑按钮显示弹窗
+    editProfileBtn.addEventListener('click', () => {
+        editProfileModal.style.display = 'block';
+        // 填充当前资料到输入框
+        const username = document.getElementById('username').textContent;
+        const signature = document.getElementById('signature').textContent;
+        document.getElementById('newUsername').value = username;
+        document.getElementById('newSignature').value = signature;
+    });
+
+    // 点击关闭按钮隐藏弹窗
+    closeModalBtn.addEventListener('click', () => {
+        editProfileModal.style.display = 'none';
+    });
+
+    // 点击保存按钮更新资料
+    saveProfileBtn.addEventListener('click', () => {
+        const newUsername = document.getElementById('newUsername').value;
+        const newSignature = document.getElementById('newSignature').value;
+        document.getElementById('username').textContent = newUsername;
+        document.getElementById('signature').textContent = newSignature;
+        editProfileModal.style.display = 'none';
+        // 这里可添加调用 API 更新资料的逻辑(保存时显示保存中)
+        try {
+            // 显示保存中
+            saveProfileBtn.disabled = true;
+            saveProfileBtn.textContent = '保存中...';
+            const response = fetch(API_BASE_URL+'/api/profile/update',{
+                method: 'POST',
+                headers: {
+                    'token': authToken
+                },
+                body: JSON.stringify({
+                    name: newUsername,
+                    signature: newSignature
+                })
+            });
+            if(!response.ok) {
+                throw new Error('更新用户信息失败');
+            }
+            const responseData = response.json();
+            if(responseData.code === 0) {
+                // 刷新用户信息
+                fetchUserInfo();
+                //关闭弹窗
+                editProfileModal.style.display = 'none';
+            }
+        } catch (error) {
+            console.error('更新用户信息失败:', error);
+        } finally {
+            // 恢复保存按钮
+            saveProfileBtn.disabled = false;
+            saveProfileBtn.textContent = '保存';
+        }
+    });
+
+    // 点击弹窗外部区域隐藏弹窗
+    window.addEventListener('click', (event) => {
+        if (event.target === editProfileModal) {
+            editProfileModal.style.display = 'none';
         }
     });
 });
