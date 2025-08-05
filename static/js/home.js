@@ -36,6 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     homeBtn.addEventListener('click', () => {
         showSection(homeSection);
+        fetchUserInfo();
         if (ws.readyState === WebSocket.OPEN) {
             closeWebSocket();
         }
@@ -157,11 +158,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const saysList = document.getElementById('saysList');
     const backToPostBtn = document.getElementById('backToPostBtn');
     
+    // 编辑个人信息相关元素
     const editProfileBtn = document.getElementById('editProfileBtn');
     const editProfileModal = document.getElementById('editProfileModal');
     const closeModalBtn = document.querySelector('.close');
     const saveProfileBtn = document.getElementById('saveProfileBtn');
 
+    fetchUserInfo();
     // 切换到显示说说界面
     viewSaysBtn.addEventListener('click', () => {
         postSaysSection.style.display = 'none';
@@ -188,10 +191,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error('获取说说列表失败');
             }
             const responseData = await response.json();
-            const saysList = responseData.data;
+            const says = responseData.says;
             // 清空现有说说
             saysList.innerHTML = '';
-            saysList.forEach(item => {
+            says.forEach(item => {
                 const li = document.createElement('li');
                 li.textContent = `${item.content} - ${item.time}`;
                 saysList.appendChild(li);
@@ -220,7 +223,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     throw new Error('发布说说失败');
                 }
                 const responseData = await response.json();
-                if(responseData.code === 0) {
+                if(responseData.code === 200) {
                     // 发布成功
                     saysInput.value = '';
                     // 刷新说说列表
@@ -246,10 +249,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error('获取用户信息失败');
             }
             const responseData = await response.json();
-            const userInfo = responseData.data;
-            // 填充当前资料到输入框
-            document.getElementById('username').textContent = userInfo.name;
-            document.getElementById('signature').textContent = userInfo.signature;
+            const userInfo = responseData.profile;
+            // 填充用户信息到span
+            document.getElementById('username').innerText = userInfo.name;
+            document.getElementById('signature').innerText = userInfo.signature;
         } catch (error) {
             console.error('获取用户信息失败:', error);
         }
