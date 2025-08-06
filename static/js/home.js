@@ -66,6 +66,8 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const response = await fetch(API_BASE_URL+'/api/messages/send',{
                     method: 'POST',
+                    Upgrade: 'websocket',
+                    Connection: 'Upgrade',
                     headers: {
                         'token': authToken
                     },
@@ -79,6 +81,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 appendMessage(message,true);
                 messageInput.value = '';
             } catch (error) {
+                //如果是500错误重连
+                if(error.message.includes('500')) {
+                    alert('服务器开小差了T_T');
+                    connectWebSocket();
+                }
                 console.error('发送消息失败');
                 alert('消息发送失败了T_T');
             }
@@ -150,6 +157,10 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('beforeunload', () => {
         closeWebSocket();
     });
+    // 离开页面时关闭WebSocket连接
+    window.addEventListener('unload', () => {
+        closeWebSocket();
+    });
     // 说说相关元素
     const viewSaysBtn = document.getElementById('viewSaysBtn');
     const postSaysBtn = document.getElementById('postSaysBtn');
@@ -196,7 +207,10 @@ document.addEventListener('DOMContentLoaded', () => {
             saysList.innerHTML = '';
             says.forEach(item => {
                 const li = document.createElement('li');
-                li.textContent = `${item.content} - ${item.time}`;
+                //转换时区
+                const time = new Date(item.time);
+                const localTime = time.toLocaleString();
+                li.textContent = `${item.content} - ${localTime}`;
                 saysList.appendChild(li);
             });
         } catch (error) {
@@ -223,11 +237,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     throw new Error('发布说说失败');
                 }
                 const responseData = await response.json();
-                if(responseData.code === 200) {
+                if(response.status == 200) {
                     // 发布成功
                     saysInput.value = '';
-                    // 刷新说说列表
-                    fetchSays();
                 }
             } catch (error) {
                 console.error('发布说说失败:', error);
